@@ -1,0 +1,84 @@
+{
+  "case_id": "appendicitis_001",
+  "title": "Боль в животе у мужчины 34 лет",
+  "patient": {
+    "name": "Иван П.",
+    "age": 34,
+    "gender": "male",
+    "occupation": "программист"
+  },
+  "presentation": {
+    "chief_complaint": "Боль в животе",
+    "history": "3 дня назад появилась боль в эпигастральной области, затем переместилась в правую подвздошную область. Боль усиливается при движении и кашле. Была однократная рвота. Аппетит снижен.",
+    "symptoms": {
+      "pain_location": "правая подвздошная область",
+      "pain_intensity": 7,
+      "pain_character": "острая, постоянная",
+      "pain_duration": "3 дня",
+      "fever": 38.2,
+      "nausea": true,
+      "vomiting": 1,
+      "appetite": "снижен"
+    }
+  },
+  "correct_answers": {
+    "diagnosis": {
+      "primary": "Острый аппендицит",
+      "icd10": "K35.8"
+    },
+    "treatment": {
+      "medications": [
+        {
+          "name": "Цефтриаксон",
+          "dose": "1г",
+          "route": "в/в",
+          "frequency": "2 раза в день"
+        },
+        {
+          "name": "Метронидазол",
+          "dose": "500мг",
+          "route": "в/в",
+          "frequency": "3 раза в день"
+        }
+      ],
+      "procedures": [
+        "Аппендэктомия",
+        "Инфузионная терапия"
+      ]
+    }
+  },
+  "real_test_results": {
+    "cbc": {
+      "results": {
+        "wbc": {
+          "name": "Лейкоциты",
+          "value": 14.5,
+          "unit": "×10⁹/л",
+          "reference": "4.0-9.0",
+          "status": "high"
+        },
+        "neutrophils": {
+          "name": "Нейтрофилы",
+          "value": 82,
+          "unit": "%",
+          "reference": "45-70",
+          "status": "high"
+        }
+      }
+    },
+    "abdominal_exam": {
+      "description": "Живот напряжен в правой подвздошной области. Положительный симптом Щёткина-Блюмберга. Резкая болезненность в точке МакБурнея. Положительный симптом Ровзинга."
+    },
+    "vital_signs": {
+      "results": {
+        "temperature": {
+          "name": "Температура",
+          "value": 38.2,
+          "unit": "°C",
+          "reference": "36.3-36.9",
+          "status": "high"
+        }
+      }
+    }
+  }
+}

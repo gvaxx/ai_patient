@@ -1,0 +1,39 @@
+{
+  "case_id": "template_001",
+  "title": "Клинический случай",
+  "patient": {
+    "name": "Пациент П.",
+    "age": 30,
+    "gender": "male",
+    "occupation": "инженер"
+  },
+  "presentation": {
+    "chief_complaint": "Главная жалоба пациента",
+    "history": "Подробная история заболевания: когда началось, как развивалось, что предпринимал пациент.",
+    "symptoms": {
+      "symptom1": "описание симптома 1",
+      "symptom2": "описание симптома 2"
+    }
+  },
+  "correct_answers": {
+    "diagnosis": {
+      "primary": "Правильный диагноз",
+      "icd10": "A00.0"
+    },
+    "treatment": {
+      "medications": [
+        {
+          "name": "Название препарата",
+          "dose": "дозировка",
+          "route": "путь введения",
+          "frequency": "частота приема"
+        }
+      ],
+      "procedures": [
+        "Процедура 1",
+        "Процедура 2"
+      ]
+    }
+  },
+  "real_test_results": {}
+}
