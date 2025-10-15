@@ -1,0 +1,37 @@
+{
+  "Complete Urinalysis": {
+
+    "normal_values": {
+      "color": "Light yellow to amber",
+      "appearance": "Clear",
+      "specific_gravity": "1.005-1.030",
+      "pH": "4.5-8.0",
+      "protein": "<0.1 g/L",
+      "glucose": "Negative",
+      "ketones": "Negative",
+      "bilirubin": "Negative",
+      "urobilinogen": "0.1-1.0 mg/dL",
+      "blood": "Negative",
+      "nitrite": "Negative",
+      "leukocyte_esterase": "Negative"
+    },
+    
+    "microscopic_examination": {
+      "red_blood_cells": "0-2 per HPF",
+      "white_blood_cells": "0-5 per HPF",
+      "epithelial_cells": "Few",
+      "casts": "0-2 hyaline casts per LPF",
+      "crystals": "None or few",
+      "bacteria": "None"
+    },
+    
+    "notes": {
+      "units": {
+        "g/L": "grams per liter",
+        "mg/dL": "milligrams per deciliter",
+        "HPF": "per high-power field",
+        "LPF": "per low-power field"
+      }
+    }
+  }
+}
