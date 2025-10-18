@@ -88,3 +88,63 @@ class EvaluationService:
         }
         return self.llm.evaluate_treatment(submitted=submitted, correct=correct, patient=patient_ctx)
 
+    def evaluate_preliminary_diagnosis(
+        self, 
+        submitted: str, 
+        correct: str,
+        case: ClinicalCase
+    ) -> Dict:
+        """
+        Оценивает предварительный диагноз.
+        """
+        case_context = {
+            "chief_complaint": case.chief_complaint,
+            "symptoms": case.symptoms,
+        }
+        return self.llm.evaluate_preliminary_diagnosis(submitted=submitted, correct=correct, case_context=case_context)
+
+    def evaluate_comorbidities(
+        self, 
+        submitted: str, 
+        correct: str,
+        case: ClinicalCase
+    ) -> Dict:
+        """
+        Оценивает сопутствующие заболевания.
+        """
+        case_context = {
+            "chief_complaint": case.chief_complaint,
+            "symptoms": case.symptoms,
+        }
+        return self.llm.evaluate_comorbidities(submitted=submitted, correct=correct, case_context=case_context)
+
+    def evaluate_final_diagnosis(
+        self, 
+        submitted: str, 
+        correct: str,
+        case: ClinicalCase
+    ) -> Dict:
+        """
+        Оценивает финальный диагноз.
+        """
+        case_context = {
+            "chief_complaint": case.chief_complaint,
+            "symptoms": case.symptoms,
+        }
+        return self.llm.evaluate_final_diagnosis(submitted=submitted, correct=correct, case_context=case_context)
+
+    def evaluate_final_treatment(
+        self, 
+        submitted: str, 
+        correct: Dict,
+        case: ClinicalCase
+    ) -> Dict:
+        """
+        Оценивает финальный план лечения.
+        """
+        patient_ctx = {
+            "age": case.patient.age,
+            "gender": case.patient.gender,
+        }
+        return self.llm.evaluate_final_treatment(submitted=submitted, correct=correct, patient=patient_ctx)
+

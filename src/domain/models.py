@@ -32,6 +32,8 @@ class ClinicalCase:
     symptoms: Dict[str, Any]      # Симптомы
 
     # Правильные ответы
+    correct_preliminary_diagnosis: str  # Правильный предварительный диагноз
+    correct_comorbidities: str     # Правильные сопутствующие заболевания
     correct_diagnosis: str        # Правильный диагноз
     correct_icd10: str            # Код МКБ-10
     correct_treatment: Dict[str, Any]  # Лечение
@@ -63,6 +65,9 @@ class Session:
     conversation: List[Dict] = field(default_factory=list)
     ordered_tests: List[str] = field(default_factory=list)
     test_results: Dict[str, TestResult] = field(default_factory=dict)
+    preliminary_diagnosis: Optional[str] = None
+    preliminary_diagnosis_score: Optional[int] = None
+    preliminary_diagnosis_feedback: Optional[str] = None
     submitted_diagnosis: Optional[str] = None
     submitted_treatment: Optional[Dict] = None
     evaluation: Optional[Dict] = None

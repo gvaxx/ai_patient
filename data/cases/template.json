@@ -16,6 +16,8 @@
     }
   },
   "correct_answers": {
+    "preliminary_diagnosis": "Предварительный диагноз для оценки",
+    "comorbidities": "Сопутствующие заболевания для оценки",
     "diagnosis": {
       "primary": "Правильный диагноз",
       "icd10": "A00.0"

@@ -19,6 +19,8 @@
     }
   },
   "correct_answers": {
+    "preliminary_diagnosis": "Пневмония",
+    "comorbidities": "Нет сопутствующих заболеваний",
     "diagnosis": {
       "primary": "Нижнедолевая правосторонняя пневмония",
       "icd10": "J18.9"

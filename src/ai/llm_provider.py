@@ -189,4 +189,116 @@ class LLMClient:
         except Exception:
             return {"score": 0, "feedback": "Не удалось распарсить ответ модели."}
 
+    def evaluate_preliminary_diagnosis(
+        self,
+        submitted: str,
+        correct: str,
+        case_context: Dict
+    ) -> Dict:
+        from .prompts import PRELIMINARY_DIAGNOSIS_EVALUATION_PROMPT
+
+        prompt = PRELIMINARY_DIAGNOSIS_EVALUATION_PROMPT.format(
+            submitted_diagnosis=submitted,
+            correct_diagnosis=correct,
+            chief_complaint=case_context.get("chief_complaint", ""),
+            symptoms=json.dumps(case_context.get("symptoms", {}), ensure_ascii=False),
+        )
+        messages = [{"role": "user", "content": prompt}]
+        raw = self.provider.generate(messages, temperature=0.3)
+
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.strip('`')
+            if cleaned.startswith("json"):
+                cleaned = cleaned[4:]
+        cleaned = cleaned.strip()
+        try:
+            return json.loads(cleaned)
+        except Exception:
+            return {"score": 1, "status": "incorrect", "feedback": "Не удалось распарсить ответ модели."}
+
+    def evaluate_comorbidities(
+        self,
+        submitted: str,
+        correct: str,
+        case_context: Dict
+    ) -> Dict:
+        from .prompts import COMORBIDITIES_EVALUATION_PROMPT
+
+        prompt = COMORBIDITIES_EVALUATION_PROMPT.format(
+            submitted_comorbidities=submitted,
+            correct_comorbidities=correct,
+            chief_complaint=case_context.get("chief_complaint", ""),
+            symptoms=json.dumps(case_context.get("symptoms", {}), ensure_ascii=False),
+        )
+        messages = [{"role": "user", "content": prompt}]
+        raw = self.provider.generate(messages, temperature=0.3)
+
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.strip('`')
+            if cleaned.startswith("json"):
+                cleaned = cleaned[4:]
+        cleaned = cleaned.strip()
+        try:
+            return json.loads(cleaned)
+        except Exception:
+            return {"score": 1, "status": "incorrect", "feedback": "Не удалось распарсить ответ модели."}
+
+    def evaluate_final_diagnosis(
+        self,
+        submitted: str,
+        correct: str,
+        case_context: Dict
+    ) -> Dict:
+        from .prompts import FINAL_DIAGNOSIS_EVALUATION_PROMPT
+
+        prompt = FINAL_DIAGNOSIS_EVALUATION_PROMPT.format(
+            submitted_diagnosis=submitted,
+            correct_diagnosis=correct,
+            chief_complaint=case_context.get("chief_complaint", ""),
+            symptoms=json.dumps(case_context.get("symptoms", {}), ensure_ascii=False),
+        )
+        messages = [{"role": "user", "content": prompt}]
+        raw = self.provider.generate(messages, temperature=0.3)
+
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.strip('`')
+            if cleaned.startswith("json"):
+                cleaned = cleaned[4:]
+        cleaned = cleaned.strip()
+        try:
+            return json.loads(cleaned)
+        except Exception:
+            return {"score": 1, "status": "incorrect", "feedback": "Не удалось распарсить ответ модели."}
+
+    def evaluate_final_treatment(
+        self,
+        submitted: str,
+        correct: Dict,
+        patient: Dict
+    ) -> Dict:
+        from .prompts import FINAL_TREATMENT_EVALUATION_PROMPT
+
+        prompt = FINAL_TREATMENT_EVALUATION_PROMPT.format(
+            submitted_treatment=submitted,
+            correct_treatment=json.dumps(correct, ensure_ascii=False),
+            patient_age=patient.get("age", "-"),
+            patient_gender=patient.get("gender", "-"),
+        )
+        messages = [{"role": "user", "content": prompt}]
+        raw = self.provider.generate(messages, temperature=0.3)
+
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.strip('`')
+            if cleaned.startswith("json"):
+                cleaned = cleaned[4:]
+        cleaned = cleaned.strip()
+        try:
+            return json.loads(cleaned)
+        except Exception:
+            return {"score": 1, "feedback": "Не удалось распарсить ответ модели."}
+
 

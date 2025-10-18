@@ -70,6 +70,8 @@ class CaseLoader:
             chief_complaint=presentation.get("chief_complaint", ""),
             history=presentation.get("history", ""),
             symptoms=presentation.get("symptoms", {}),
+            correct_preliminary_diagnosis=correct.get("preliminary_diagnosis", ""),
+            correct_comorbidities=correct.get("comorbidities", ""),
             correct_diagnosis=diagnosis.get("primary", ""),
             correct_icd10=diagnosis.get("icd10", ""),
             correct_treatment=treatment,

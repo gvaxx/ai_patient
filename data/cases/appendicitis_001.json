@@ -22,6 +22,8 @@
     }
   },
   "correct_answers": {
+    "preliminary_diagnosis": "Острый аппендицит",
+    "comorbidities": "Нет сопутствующих заболеваний",
     "diagnosis": {
       "primary": "Острый аппендицит",
       "icd10": "K35.8"
