@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import Dict, List
 from .models import ClinicalCase, TestResult
 from ..data.test_templates import TestTemplates
@@ -11,11 +12,11 @@ class TestService:
         """
         Возвращает результаты теста для данного случая.
         """
+
         if case.has_real_results(test_id):
             merged = TestTemplates.merge_with_real_results(test_id, case.get_real_results(test_id))
         else:
             merged = TestTemplates.generate_normal_results(test_id)
-
         if "results" in merged:
             return TestResult(
                 test_id=test_id,
@@ -147,4 +148,29 @@ class EvaluationService:
             "gender": case.patient.gender,
         }
         return self.llm.evaluate_final_treatment(submitted=submitted, correct=correct, patient=patient_ctx)
+
+    def evaluate_combined(
+        self,
+        submitted_diagnosis: str,
+        submitted_treatment: str,
+        correct_diagnosis: str,
+        correct_treatment: Dict,
+        case: ClinicalCase
+    ) -> Dict:
+        """
+        Оценивает диагноз и лечение в одном запросе.
+        """
+        case_context = {
+            "chief_complaint": case.chief_complaint,
+            "symptoms": case.symptoms,
+            "patient_age": case.patient.age,
+            "patient_gender": case.patient.gender,
+        }
+        return self.llm.evaluate_combined(
+            submitted_diagnosis=submitted_diagnosis,
+            submitted_treatment=submitted_treatment,
+            correct_diagnosis=correct_diagnosis,
+            correct_treatment=correct_treatment,
+            case_context=case_context
+        )
 

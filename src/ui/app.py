@@ -261,30 +261,30 @@ elif st.session_state.active_tab == "interview":
         # Проверяем, есть ли уже предварительный диагноз
         if session.preliminary_diagnosis is None:
             # Форма для ввода предварительного диагноза
-            with st.form("preliminary_diagnosis_form"):
-                preliminary_diagnosis = st.text_area(
-                    "Введите ваш предварительный диагноз:",
-                    placeholder="Например: Острый аппендицит, Пневмония, Гастрит...",
-                    height=80
-                )
+            # with st.form("preliminary_diagnosis_form"):
+            preliminary_diagnosis = st.text_area(
+                "Введите ваш предварительный диагноз:",
+                placeholder="Например: Острый аппендицит, Пневмония, Гастрит...",
+                height=80
+            )
                 
-                submitted = st.form_submit_button("Оценить", type="primary")
+                # submitted = st.form_submit_button("Оценить", type="primary")
                 
-                if submitted and preliminary_diagnosis.strip():
-                    with st.spinner("Оцениваем..."):
-                        # Оцениваем предварительный диагноз
-                        evaluation = services["evaluation_service"].evaluate_preliminary_diagnosis(
-                            submitted=preliminary_diagnosis.strip(),
-                            correct=case.correct_preliminary_diagnosis,
-                            case=case
-                        )
+                # if submitted and preliminary_diagnosis.strip():
+                #     with st.spinner("Оцениваем..."):
+                #         # Оцениваем предварительный диагноз
+                #         evaluation = services["evaluation_service"].evaluate_preliminary_diagnosis(
+                #             submitted=preliminary_diagnosis.strip(),
+                #             correct=case.correct_preliminary_diagnosis,
+                #             case=case
+                #         )
                         
-                        # Сохраняем результаты
-                        session.preliminary_diagnosis = preliminary_diagnosis.strip()
-                        session.preliminary_diagnosis_score = evaluation.get("score", 1)
-                        session.preliminary_diagnosis_feedback = evaluation.get("feedback", "")
+                #         # Сохраняем результаты
+                #         session.preliminary_diagnosis = preliminary_diagnosis.strip()
+                #         session.preliminary_diagnosis_score = evaluation.get("score", 1)
+                #         session.preliminary_diagnosis_feedback = evaluation.get("feedback", "")
                         
-                        st.rerun()
+                #         st.rerun()
         
         else:
             # Показываем уже введенный диагноз и оценку
@@ -306,19 +306,10 @@ elif st.session_state.active_tab == "interview":
         # Назначение анализов
         st.subheader("🧪 Назначение анализов")
         
-        # Проверяем, разблокированы ли анализы
-        score = session.preliminary_diagnosis_score or 0
-        tests_unlocked = score > 6
-        
-        if not tests_unlocked:
-            st.warning("🔒 Лабораторные и инструментальные исследования заблокированы")
-            st.info("💡 Для разблокировки получите оценку предварительного диагноза больше 6 баллов")
-        else:
-            st.success("🔓 Все анализы разблокированы!")
-        
         # Получаем список всех доступных тестов
         available_tests = TestTemplates.get_all_tests()
-        
+        # st.write(available_tests)
+        # st.write(case.real_test_results)
         # Группируем по категориям
         lab_tests = [t for t in available_tests if t["category"] == "laboratory"]
         exam_tests = [t for t in available_tests if t["category"] == "examination"]
@@ -358,16 +349,14 @@ elif st.session_state.active_tab == "interview":
                 st.rerun()
         
         # Лабораторные анализы
-        lab_title = "🔬 Лабораторные анализы" + (" 🔒" if not tests_unlocked else "")
-        with st.expander(lab_title, ):
+        with st.expander("🔬 Лабораторные анализы", ):
             lab_options = {t["name"]: t["test_id"] for t in lab_tests if t["test_id"] not in session.ordered_tests}
             selected_lab_name = st.selectbox(
                 "Выберите анализ",
                 options=["— не выбрано —"] + list(lab_options.keys()),
-                key="select_lab_test",
-                disabled=not tests_unlocked
+                key="select_lab_test"
             )
-            if st.button("Провести анализ", key="run_lab_test", disabled=selected_lab_name == "— не выбрано —" or not tests_unlocked, use_container_width=True):
+            if st.button("Провести анализ", key="run_lab_test", disabled=selected_lab_name == "— не выбрано —", use_container_width=True):
                 test_id = lab_options[selected_lab_name]
                 with st.spinner("Получение результатов..."):
                     result = services["test_service"].get_test_results(test_id=test_id, case=case)
@@ -393,16 +382,14 @@ elif st.session_state.active_tab == "interview":
                 st.rerun()
         
         # Инструментальные исследования
-        imaging_title = "📷 Инструментальные исследования" + (" 🔒" if not tests_unlocked else "")
-        with st.expander(imaging_title, ):
+        with st.expander("📷 Инструментальные исследования", ):
             imaging_options = {t["name"]: t["test_id"] for t in imaging_tests if t["test_id"] not in session.ordered_tests}
             selected_img_name = st.selectbox(
                 "Выберите исследование",
                 options=["— не выбрано —"] + list(imaging_options.keys()),
-                key="select_imaging_test",
-                disabled=not tests_unlocked
+                key="select_imaging_test"
             )
-            if st.button("Провести исследование", key="run_imaging_test", disabled=selected_img_name == "— не выбрано —" or not tests_unlocked, use_container_width=True):
+            if st.button("Провести исследование", key="run_imaging_test", disabled=selected_img_name == "— не выбрано —", use_container_width=True):
                 test_id = imaging_options[selected_img_name]
                 with st.spinner("Получение результатов..."):
                     result = services["test_service"].get_test_results(test_id=test_id, case=case)
@@ -440,18 +427,9 @@ elif st.session_state.active_tab == "interview":
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         # Проверяем, прошел ли предварительный диагноз
-        score = session.preliminary_diagnosis_score or 0
-        if score > 6:
-            if st.button("Далее: Диагноз →", use_container_width=True, type="primary"):
-                st.session_state.active_tab = "diagnosis"
-                st.rerun()
-        else:
-            if session.preliminary_diagnosis is None:
-                st.warning("⚠️ Сначала поставьте предварительный диагноз")
-            else:
-                st.warning("⚠️ Для продолжения необходимо получить оценку предварительного диагноза больше 6 баллов")
-            if st.button("Далее: Диагноз →", use_container_width=True, disabled=True):
-                pass
+        if st.button("Далее: Диагноз →", use_container_width=True, type="primary"):
+            st.session_state.active_tab = "diagnosis"
+            st.rerun()
 
 elif st.session_state.active_tab == "diagnosis":
     st.header("📋 Диагноз и план лечения")
@@ -614,33 +592,21 @@ elif st.session_state.active_tab == "diagnosis":
         total_score = session.evaluation["total_score"]
         max_score = session.evaluation["max_score"]
         
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2, col3 = st.columns(3)
         
         with col1:
             st.metric(
-                "Предв. диагноз",
-                f"{session.evaluation['preliminary']['score']}/10"
+                "Финальный диагноз",
+                f"{session.evaluation['final_diagnosis']['score']}/10"
             )
         
         with col2:
             st.metric(
-                "Сопутств. забол.",
-                f"{session.evaluation['comorbidities']['score']}/10"
+                "План лечения",
+                f"{session.evaluation['final_treatment']['score']}/10"
             )
         
         with col3:
-            st.metric(
-                "Финальный диагноз",
-                f"{session.evaluation['final_diagnosis']['score']}/20"
-            )
-        
-        with col4:
-            st.metric(
-                "План лечения",
-                f"{session.evaluation['final_treatment']['score']}/20"
-            )
-        
-        with col5:
             # Определяем цвет по баллам
             percentage = (total_score / max_score) * 100
             if percentage >= 80:
@@ -657,26 +623,16 @@ elif st.session_state.active_tab == "diagnosis":
         
         st.write("---")
         
-        # Детальная обратная связь в четырех колонках
-        col1, col2, col3, col4 = st.columns(4)
+        # Детальная обратная связь в двух колонках
+        col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("🔍 Предв. диагноз")
-            status_icons = {"correct": "✅", "partial": "⚠️", "incorrect": "❌"}
-            status_icon = status_icons.get(session.evaluation['preliminary']['status'], "❓")
-            st.write(f"{status_icon} {session.evaluation['preliminary']['feedback']}")
-        
-        with col2:
-            st.subheader("🏥 Сопутств. забол.")
-            status_icon = status_icons.get(session.evaluation['comorbidities']['status'], "❓")
-            st.write(f"{status_icon} {session.evaluation['comorbidities']['feedback']}")
-        
-        with col3:
             st.subheader("🔍 Финальный диагноз")
+            status_icons = {"correct": "✅", "partial": "⚠️", "incorrect": "❌"}
             status_icon = status_icons.get(session.evaluation['final_diagnosis']['status'], "❓")
             st.write(f"{status_icon} {session.evaluation['final_diagnosis']['feedback']}")
         
-        with col4:
+        with col2:
             st.subheader("💊 План лечения")
             st.write(session.evaluation['final_treatment']['feedback'])
         
@@ -686,34 +642,26 @@ elif st.session_state.active_tab == "diagnosis":
         with st.expander("📚 Правильные ответы", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
-                st.write("**Предварительный диагноз:**")
-                st.write(case.correct_preliminary_diagnosis)
-                st.write("**Сопутствующие заболевания:**")
-                st.write(case.correct_comorbidities)
                 st.write("**Финальный диагноз:**")
                 st.write(case.correct_diagnosis)
             
             with col2:
                 st.write("**План лечения:**")
-                for med in case.correct_treatment.get("medications", []):
-                    st.write(f"- {med['name']} {med['dose']} {med['route']} {med['frequency']}")
-                for proc in case.correct_treatment.get("procedures", []):
-                    st.write(f"- {proc}")
+                for treatment in case.correct_treatment.get("treatment_plan", []):
+                    st.write(f"- {treatment}")
         
         st.write("---")
         
         # Расшифровка оценки
         with st.expander("📊 Расшифровка оценки", expanded=False):
             st.write("**Система оценки:**")
-            st.write("- **Предварительный диагноз:** 1-10 баллов (оценка на основе клинической картины)")
-            st.write("- **Сопутствующие заболевания:** 1-10 баллов (релевантность указанных заболеваний)")
-            st.write("- **Финальный диагноз:** 1-20 баллов (точность окончательного диагноза)")
-            st.write("- **План лечения:** 1-20 баллов (правильность медикаментов и процедур)")
+            st.write("- **Финальный диагноз:** 1-10 баллов (точность окончательного диагноза)")
+            st.write("- **План лечения:** 1-10 баллов (правильность медикаментов и процедур)")
             st.write("")
-            st.write("**Общий балл:** максимум 60 баллов")
-            st.write("- 🟢 80%+ (48+ баллов): Отлично")
-            st.write("- 🟡 60-79% (36-47 баллов): Хорошо")
-            st.write("- 🔴 <60% (<36 баллов): Требует улучшения")
+            st.write("**Общий балл:** максимум 20 баллов")
+            st.write("- 🟢 80%+ (16+ баллов): Отлично")
+            st.write("- 🟡 60-79% (12-15 баллов): Хорошо")
+            st.write("- 🔴 <60% (<12 баллов): Требует улучшения")
         
         st.write("---")
         
@@ -741,7 +689,7 @@ elif st.session_state.active_tab == "diagnosis":
     else:
         # === ЭКРАН ВВОДА ДИАГНОЗА И ЛЕЧЕНИЯ ===
         
-        # Две колонки: диагноз + сопутствующие, план лечения
+        # Две колонки: диагноз, план лечения
         col1, col2 = st.columns(2)
         
         with col1:
@@ -752,14 +700,6 @@ elif st.session_state.active_tab == "diagnosis":
                 key="diagnosis_input",
                 placeholder="Введите предполагаемый диагноз",
                 help="Введите предполагаемый диагноз"
-            )
-            
-            comorbidities = st.text_area(
-                "Сопутствующие заболевания:",
-                placeholder="Например:\nАртериальная гипертензия\nСахарный диабет 2 типа",
-                height=100,
-                key="comorbidities",
-                help="По одному заболеванию на строку"
             )
         
         with col2:
@@ -792,74 +732,45 @@ elif st.session_state.active_tab == "diagnosis":
                     # Сохраняем ответы
                     session.submitted_diagnosis = diagnosis_input
                     session.submitted_treatment = {
-                        "treatment_plan": [t.strip() for t in treatment_plan.split('\n') if t.strip()],
-                        "comorbidities": [c.strip() for c in comorbidities.split('\n') if c.strip()]
+                        "treatment_plan": [t.strip() for t in treatment_plan.split('\n') if t.strip()]
                     }
                     
                     # Оцениваем
                     with st.spinner("⏳ Оценка ваших ответов..."):
-                        # Асинхронная оценка всех компонентов
-                        import asyncio
-                        import concurrent.futures
+                        # Оценка диагноза и лечения
                         
-                        def run_evaluations():
-                            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-                                # Запускаем все оценки параллельно
-                                futures = {
-                                    'preliminary': executor.submit(
-                                        services["evaluation_service"].evaluate_preliminary_diagnosis,
-                                        session.preliminary_diagnosis or "",
-                                        case.correct_preliminary_diagnosis,
-                                        case
-                                    ),
-                                    'comorbidities': executor.submit(
-                                        services["evaluation_service"].evaluate_comorbidities,
-                                        '\n'.join(session.submitted_treatment.get("comorbidities", [])),
-                                        case.correct_comorbidities,
-                                        case
-                                    ),
-                                    'final_diagnosis': executor.submit(
-                                        services["evaluation_service"].evaluate_final_diagnosis,
-                                        diagnosis_input,
-                                        case.correct_diagnosis,
-                                        case
-                                    ),
-                                    'final_treatment': executor.submit(
-                                        services["evaluation_service"].evaluate_final_treatment,
-                                        '\n'.join(session.submitted_treatment.get("treatment_plan", [])),
-                                        case.correct_treatment,
-                                        case
-                                    )
+                        def run_evaluation():
+                            # Запускаем объединенную оценку диагноза и лечения
+                            try:
+                                result = services["evaluation_service"].evaluate_combined(
+                                    submitted_diagnosis=diagnosis_input,
+                                    submitted_treatment=session.submitted_treatment,
+                                    correct_diagnosis=case.correct_diagnosis,
+                                    correct_treatment=case.correct_treatment,
+                                    case=case
+                                )
+                                return result
+                            except Exception as e:
+                                print(e)
+                                return {
+                                    "final_diagnosis": {"score": 1, "status": "incorrect", "feedback": f"Ошибка оценки: {str(e)}"},
+                                    "final_treatment": {"score": 1, "feedback": f"Ошибка оценки: {str(e)}"}
                                 }
-                                
-                                # Получаем результаты
-                                results = {}
-                                for key, future in futures.items():
-                                    try:
-                                        results[key] = future.result(timeout=30)
-                                    except Exception as e:
-                                        results[key] = {"score": 1, "feedback": f"Ошибка оценки: {str(e)}"}
-                                
-                                return results
                         
-                        # Запускаем оценки
-                        evaluation_results = run_evaluations()
+                        # Запускаем оценку
+                        evaluation_results = run_evaluation()
                         
                         # Вычисляем общий балл
                         total_score = (
-                            evaluation_results['preliminary']['score'] +  # 1-10
-                            evaluation_results['comorbidities']['score'] +  # 1-10
-                            evaluation_results['final_diagnosis']['score'] +  # 1-20
-                            evaluation_results['final_treatment']['score']  # 1-20
-                        )  # Максимум 60 баллов
+                            evaluation_results['final_diagnosis']['score'] +  # 1-10
+                            evaluation_results['final_treatment']['score']  # 1-10
+                        )  # Максимум 20 баллов
                         
                         session.evaluation = {
-                            "preliminary": evaluation_results['preliminary'],
-                            "comorbidities": evaluation_results['comorbidities'],
                             "final_diagnosis": evaluation_results['final_diagnosis'],
                             "final_treatment": evaluation_results['final_treatment'],
                             "total_score": total_score,
-                            "max_score": 60
+                            "max_score": 20
                         }
                     
                     st.rerun()

@@ -60,7 +60,20 @@ class CaseLoader:
         presentation = data.get("presentation", {})
         correct = data.get("correct_answers", {})
         diagnosis = correct.get("diagnosis", {})
-        treatment = correct.get("treatment", {})
+        treatment = correct.get("treatment", [])
+
+        # Обрабатываем новый формат correct_answers
+        # correct_diagnosis теперь массив строк
+        if isinstance(diagnosis.get("primary"), list):
+            correct_diagnosis = "\n".join(diagnosis.get("primary", []))
+        else:
+            correct_diagnosis = diagnosis.get("primary", "")
+        
+        # correct_treatment теперь массив строк
+        if isinstance(treatment, list):
+            correct_treatment = {"treatment_plan": treatment}
+        else:
+            correct_treatment = treatment
 
         # Создаем и возвращаем ClinicalCase
         return ClinicalCase(
@@ -72,9 +85,9 @@ class CaseLoader:
             symptoms=presentation.get("symptoms", {}),
             correct_preliminary_diagnosis=correct.get("preliminary_diagnosis", ""),
             correct_comorbidities=correct.get("comorbidities", ""),
-            correct_diagnosis=diagnosis.get("primary", ""),
+            correct_diagnosis=correct_diagnosis,
             correct_icd10=diagnosis.get("icd10", ""),
-            correct_treatment=treatment,
+            correct_treatment=correct_treatment,
             real_test_results=data.get("real_test_results", {}),
         )
 

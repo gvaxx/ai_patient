@@ -301,4 +301,77 @@ class LLMClient:
         except Exception:
             return {"score": 1, "feedback": "Не удалось распарсить ответ модели."}
 
+    def evaluate_combined(
+        self,
+        submitted_diagnosis: str,
+        submitted_treatment: str,
+        correct_diagnosis: str,
+        correct_treatment: Dict,
+        case_context: Dict
+    ) -> Dict:
+        """
+        Оценивает диагноз и лечение в одном запросе.
+        """
+        from .prompts import COMBINED_EVALUATION_PROMPT
+        
+        # Форматируем правильное лечение в строку
+        correct_treatment_str = ""
+        if isinstance(correct_treatment, dict) and "treatment_plan" in correct_treatment:
+            correct_treatment_str = "\n".join([f"- {item}" for item in correct_treatment["treatment_plan"]])
+        elif isinstance(correct_treatment, list):
+            correct_treatment_str = "\n".join([f"- {item}" for item in correct_treatment])
+        else:
+            correct_treatment_str = str(correct_treatment)
+        
+        # Форматируем лечение студента в строку
+        submitted_treatment_str = ""
+        if isinstance(submitted_treatment, dict) and "treatment_plan" in submitted_treatment:
+            submitted_treatment_str = "\n".join([f"- {item}" for item in submitted_treatment["treatment_plan"]])
+        elif isinstance(submitted_treatment, list):
+            submitted_treatment_str = "\n".join([f"- {item}" for item in submitted_treatment])
+        else:
+            submitted_treatment_str = str(submitted_treatment)
+        
+        prompt = COMBINED_EVALUATION_PROMPT.format(
+            submitted_diagnosis=submitted_diagnosis,
+            submitted_treatment=submitted_treatment_str,
+            correct_diagnosis=correct_diagnosis,
+            correct_treatment=correct_treatment_str,
+            chief_complaint=case_context.get("chief_complaint", ""),
+            symptoms=case_context.get("symptoms", {}),
+            patient_age=case_context.get("patient_age", ""),
+            patient_gender=case_context.get("patient_gender", "")
+        )
+        
+        messages = [{"role": "user", "content": prompt}]
+        
+        try:
+            response = self.provider.generate(messages, max_tokens=1500, temperature=0.3)
+            cleaned = response.strip()
+            if cleaned.startswith("```json"):
+                cleaned = cleaned[7:]
+            if cleaned.endswith("```"):
+                cleaned = cleaned[:-3]
+            cleaned = cleaned.strip()
+            
+            result = json.loads(cleaned)
+            
+            # Преобразуем результат в формат, совместимый с существующей логикой
+            return {
+                "final_diagnosis": {
+                    "score": result.get("diagnosis_score", 1),
+                    "status": result.get("diagnosis_status", "incorrect"),
+                    "feedback": result.get("diagnosis_feedback", "")
+                },
+                "final_treatment": {
+                    "score": result.get("treatment_score", 1),
+                    "feedback": result.get("treatment_feedback", "")
+                }
+            }
+        except Exception as e:
+            return {
+                "final_diagnosis": {"score": 1, "status": "incorrect", "feedback": f"Ошибка оценки: {str(e)}"},
+                "final_treatment": {"score": 1, "feedback": f"Ошибка оценки: {str(e)}"}
+            }
+
 
